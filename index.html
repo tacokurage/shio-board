@@ -191,7 +191,7 @@
   <section class="bar" id="bar">
     <div class="barrow">
       <label for="grade" class="rb">ものさし</label>
-      <select id="grade">
+      <select id="grade" autocomplete="off">
         <option value="4.5" selected>日本の基準：小1・小2（6〜7さい）</option>
         <option value="5.0">日本の基準：小3・小4（8〜9さい）</option>
         <option value="6.0">日本の基準：小5・小6（10〜11さい）</option>
@@ -200,11 +200,11 @@
         <option value="5.0">世界の基準（WHO）　みんな共通</option>
       </select>
       <label for="scope" class="rb">見(み)かた</label>
-      <select id="scope">
+      <select id="scope" autocomplete="off">
         <option value="meal" selected>1食ぶんで見る</option>
         <option value="day">1日ぜんぶで見る</option>
       </select>
-      <span class="goal"><span class="rb">1日(にち)は</span> <b id="goal">4.5</b> g まで<span class="basis rb">　／　1食(しょく)のめやす</span> <b id="meal">1.5</b> g</span>
+      <span class="goal"><span class="rb">1食(しょく)は</span> <b id="meal">1.5</b> g まで<span class="basis rb">　／　1日(にち)ぜんぶで</span> <b id="goal">4.5</b> g</span>
     </div>
 
     <div class="meter" id="meter">

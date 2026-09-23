@@ -179,6 +179,23 @@
   .quiz summary:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
   .quiz .ans{margin:8px 0 0;font-size:14.5px;line-height:2}
   .quiz .win{font-family:"Zen Maru Gothic",sans-serif;font-weight:700;color:var(--red);font-size:17px}
+  /* ---- かたまり ---- */
+  .block{margin-top:30px;border:2px solid var(--line);border-radius:16px;padding:6px 16px 20px}
+  .block.mac{border-color:var(--teal)}
+  .block.extra{border-color:var(--amber);background:var(--chip)}
+  .blockhead{
+    display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;
+    margin:-16px 0 0;padding:0;
+  }
+  .blockhead b{
+    font-family:"Zen Maru Gothic",sans-serif;font-size:19px;
+    background:var(--bg);padding:0 10px;border-radius:99px;
+  }
+  .block.mac .blockhead b{color:var(--teal)}
+  .block.extra .blockhead b{color:var(--amber);background:var(--surface)}
+  .blockhead span{font-size:13px;color:var(--muted);font-weight:700}
+  .block h2:first-of-type{margin-top:14px}
+
   .sources{margin-top:22px;font-size:12px;color:var(--muted)}
   .sources ul{margin:5px 0 0;padding-left:1.2em}
 </style>
@@ -225,6 +242,9 @@
     </div>
   </section>
 
+  <div class="block mac">
+  <p class="blockhead"><b>① マクドナルド</b> <span class="rb">まず、ここを使(つか)います</span></p>
+
   <h2>マクドナルド　メイン <span class="src">公式「栄養成分一覧表」</span></h2>
   <div class="grid" id="g-main"></div>
 
@@ -233,6 +253,11 @@
 
   <h2>マクドナルド　ドリンク <span class="src">サイズちがいは代表だけ。ほとんど塩ゼロ</span></h2>
   <div class="grid" id="g-drink"></div>
+
+  </div><!-- /block mac -->
+
+  <div class="block extra">
+  <p class="blockhead"><b>② エクストラ</b> <span class="rb">きょうは使(つか)いません。気(き)になる人(ひと)だけ</span></p>
 
   <h2>コンビニ <span class="src">おにぎり・弁当はセブン-イレブン／カップめんは日清</span></h2>
   <div class="grid" id="g-conveni"></div>
@@ -250,6 +275,7 @@
     <details><summary class="rb">ポテトチップス1ふくろと、てりやきマックバーガー1こ。どっちがしょっぱい？</summary><p class="ans rb"><span class="win">バーガー。4倍(ばい)以上(いじょう)</span><br>てりやきマックバーガー 2.2g　／　ポテトチップス 0.5g。自分(じぶん)の1食(しょく)のめやすと、くらべてみて。</p></details>
     <details><summary class="rb">きつねうどん1ぱい（汁(しる)ごと）と、ポテトチップス1ふくろ。どっちがしょっぱい？</summary><p class="ans rb"><span class="win">うどん。約10倍(ばい)</span><br>きつねうどん 4.9g　／　ポテトチップス 0.5g。うどんもそばも、<b>しょっぱく感(かん)じないのに、汁(しる)に塩(しお)がたくさん入(はい)っています。</b></p></details>
   </div>
+  </div><!-- /block extra -->
 
   <h2 class="rb">塩(しお)を外(そと)に出(だ)す たすけ <span class="src">★が多いほど、たすけが大きい　※数えるのは塩のgだけ</span></h2>
   <p class="kdesc rb">カリウムは、<b>塩(しお)をおしっこと一緒(いっしょ)に体(からだ)の外(そと)へ出(だ)すのを手伝(てつだ)ってくれます。</b>好(す)きなものを減(へ)らすかわりに、これを足(た)す。<br>ここにあるのは、<b>そのままのもの</b>だけ。塩(しお)も油(あぶら)も砂糖(さとう)もついてきません。<br>★が多(おお)いほど、たすけが大(おお)きい。<b>カリウムは g(グラム) では数(かぞ)えません。数(かぞ)えるのは、塩(しお)の g(グラム) だけでいい。</b></p>

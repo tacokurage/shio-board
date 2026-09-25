@@ -1,0 +1,349 @@
+<title>塩が血管を硬くする30秒</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap">
+<style>
+  :root{
+    --bg:#0E1620; --surface:#17222D; --ink:#EDF4F8; --muted:#9DB0C0; --line:#2A3A49;
+    --lumen:#2B1D1D; --wall:#5A6E82; --wall-hard:#B0855A;
+    --blood:#E8564A; --heart:#E8364A; --water:#54B0E8; --salt:#E4ECF2; --danger:#F5913F;
+    --beat:1.25s;
+    --lt:180px;  /* 血管の中の上端 */
+    --lh:110px;  /* 血管の中の高さ */
+  }
+  body{background:var(--bg);color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,system-ui,sans-serif;line-height:1.6}
+  .wrap{max-width:1180px;margin-inline:auto;padding-inline:18px;padding-block:20px 40px}
+  .frame{background:var(--surface);border-radius:16px;padding:16px 16px 20px;border:1px solid var(--line)}
+  .scene{width:100%;height:auto;display:block;border-radius:10px;background:#101B25}
+
+  /* 血管の太さ（段階で変わる） */
+  .w1{--lt:180px; --lh:110px; --beat:1.25s}
+  .w2{--lt:166px; --lh:138px; --beat:1.05s}
+  .w3{--lt:152px; --lh:166px; --beat:.82s}
+  #lumen,#clipRect{y:var(--lt); height:var(--lh); transition:y .9s ease, height .9s ease}
+  #wallTop{y:calc(var(--lt) - 20px); transition:y .9s ease}
+  #wallBot{y:calc(var(--lt) + var(--lh)); transition:y .9s ease}
+
+  .cap{font-family:"Zen Maru Gothic","Hiragino Kaku Gothic ProN",sans-serif;font-weight:700;
+    font-size:clamp(20px,3.2vw,38px);line-height:1.45;text-wrap:balance;margin-top:14px;min-height:2.4em}
+  .cap .sub{display:block;font-size:.5em;color:var(--muted);font-weight:500;margin-top:4px}
+  .track{height:6px;border-radius:99px;background:var(--line);margin-top:12px;overflow:hidden}
+  .bar{height:100%;width:0;background:var(--blood)}
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+  .btn{font:inherit;font-weight:700;padding:11px 22px;border-radius:10px;border:1px solid var(--line);
+    background:var(--surface);color:var(--ink);cursor:pointer}
+  .btn.primary{background:var(--blood);border-color:var(--blood);color:#fff}
+  .btn:focus-visible{outline:2px solid var(--water);outline-offset:2px}
+  .hint{color:var(--muted);font-size:12.5px;margin-left:auto}
+
+  .layer{opacity:0;transition:opacity .7s ease}
+  .layer.on{opacity:1}
+
+  /* 心臓 */
+  #heart{animation:beat var(--beat) ease-in-out infinite;transform-origin:96px 218px}
+  @keyframes beat{0%,62%,100%{transform:scale(1)} 12%{transform:scale(1.22)} 30%{transform:scale(.97)}}
+
+  /* 血が流れる */
+  .cell{animation:flow linear infinite}
+  @keyframes flow{from{transform:translateX(0)} to{transform:translateX(1040px)}}
+
+  /* 拍動の波 */
+  #wave{animation:wave var(--beat) linear infinite}
+  @keyframes wave{from{transform:translateX(0)} to{transform:translateX(960px)}}
+
+  /* 壁をたたく光 */
+  .hit{animation:hit var(--beat) ease-out infinite}
+  @keyframes hit{0%,55%,100%{opacity:0} 8%{opacity:.95} 25%{opacity:.25}}
+
+  /* こぶし（血管の内側から壁をたたく） */
+  .fistUp{animation:punchUp .52s ease-in-out infinite}
+  @keyframes punchUp{0%,100%{transform:translateY(0)} 50%{transform:translateY(-18px)}}
+  .fistDown{animation:punchDown .52s ease-in-out infinite}
+  @keyframes punchDown{0%,100%{transform:translateY(0)} 50%{transform:translateY(18px)}}
+
+  /* 塩・水がふる */
+  .drop{animation:fall linear infinite}
+  @keyframes fall{from{transform:translateY(-70px);opacity:0} 12%{opacity:1} to{transform:translateY(150px);opacity:1}}
+
+  /* 終盤：血管の場面を消して、脳と心ぞうへ */
+  #mainScene{transition:opacity .8s ease}
+  .endgame #mainScene{opacity:0}
+
+  .bloom{animation:bloom 1.8s ease-out infinite}
+  @keyframes bloom{0%{transform:scale(.2);opacity:1} 70%{transform:scale(1.5);opacity:.75} 100%{transform:scale(1.9);opacity:0}}
+  .blink{animation:blink 1s ease-in-out infinite}
+  @keyframes blink{0%,100%{opacity:1} 50%{opacity:.25}}
+  #bigHeart{animation:beat .78s ease-in-out infinite;transform-origin:470px 215px}
+
+  .paused #heart,.paused .cell,.paused #wave,.paused .hit,.paused .fistUp,.paused .fistDown,
+  .paused .drop,.paused .bloom,.paused .blink{animation-play-state:paused}
+  @media (prefers-reduced-motion: reduce){
+    #heart,.cell,#wave,.hit,.fistUp,.fistDown,.drop,.bloom,.blink{animation:none}
+  }
+
+  .note{margin-top:20px;font-size:13px;color:var(--muted)}
+  .note b{color:var(--ink)}
+</style>
+
+<div class="wrap">
+  <div class="frame" id="frame">
+
+    <svg class="scene w1" id="scene" viewBox="0 0 960 420" role="img"
+         aria-label="心臓が血を押し出し、塩と水で血の量が増え、血管の壁を叩き続けて壁が厚く硬くなるまでの動く図">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <polygon points="0,0 10,5 0,10" fill="var(--water)"></polygon>
+        </marker>
+        <clipPath id="tube"><rect id="clipRect" x="150" width="810"></rect></clipPath>
+        <linearGradient id="wg" x1="0" x2="1">
+          <stop offset="0" stop-color="#fff" stop-opacity="0"></stop>
+          <stop offset="0.5" stop-color="#fff" stop-opacity=".55"></stop>
+          <stop offset="1" stop-color="#fff" stop-opacity="0"></stop>
+        </linearGradient>
+      </defs>
+
+      <g id="mainScene">
+      <!-- ふる塩 -->
+      <g id="saltLight" class="layer on"></g>
+      <g id="saltHeavy" class="layer" data-phase="1" data-until="1"></g>
+      <text id="saltLabel" class="layer" data-phase="1" data-until="1" x="24" y="40" fill="var(--salt)"
+            font-size="21" font-family="Zen Maru Gothic, sans-serif" font-weight="700">口から食べた しお　どっさり</text>
+
+      <!-- 水 -->
+      <g id="waterDrops" class="layer" data-phase="2"></g>
+      <g class="layer" data-phase="2">
+        <path d="M818 24h58l-8 46h-42z" fill="none" stroke="var(--water)" stroke-width="3" stroke-linejoin="round"></path>
+        <text x="900" y="58" text-anchor="end" fill="var(--water)" font-size="19" font-family="Zen Maru Gothic, sans-serif" font-weight="700">口から飲んだ 水</text>
+      </g>
+
+      <!-- 血管 -->
+      <rect id="wallTop" x="150" width="810" height="20" fill="var(--wall)"></rect>
+      <rect id="lumen"   x="150" width="810" fill="var(--lumen)"></rect>
+      <rect id="wallBot" x="150" width="810" height="20" fill="var(--wall)"></rect>
+
+      <!-- 流れる血 -->
+      <g clip-path="url(#tube)" id="cells"></g>
+
+      <!-- 拍動の波 -->
+      <g class="layer" data-phase="4" clip-path="url(#tube)">
+        <rect id="wave" x="-260" y="0" width="260" height="420" fill="url(#wg)"></rect>
+      </g>
+
+      <!-- 壁をたたく光 -->
+      <g class="layer" data-phase="4">
+        <rect class="hit" x="150" y="0" width="810" height="8" fill="var(--blood)" style="y:calc(var(--lt) - 20px)"></rect>
+        <rect class="hit" x="150" y="0" width="810" height="8" fill="var(--blood)" style="y:calc(var(--lt) + var(--lh) + 12px)"></rect>
+      </g>
+
+      <!-- 心臓 -->
+      <g id="heart">
+        <path d="M96 258c-34-24-52-42-52-64a26 26 0 0 1 52-14 26 26 0 0 1 52 14c0 22-18 40-52 64z"
+              fill="var(--heart)"></path>
+      </g>
+      <text x="96" y="296" text-anchor="middle" fill="var(--muted)" font-size="15"
+            font-family="Zen Maru Gothic, sans-serif" font-weight="700">心ぞう</text>
+
+      <!-- こぶし：血管の内側から、上下の壁をたたく -->
+      <g class="layer" data-phase="5" fill="var(--danger)" clip-path="url(#tube)">
+        <g class="fistUp"><g transform="translate(286,172)"><rect x="0" y="0" width="52" height="40" rx="20"></rect><rect x="10" y="38" width="32" height="16" rx="6"></rect></g></g>
+        <g class="fistUp" style="animation-delay:-.18s"><g transform="translate(548,172)"><rect x="0" y="0" width="52" height="40" rx="20"></rect><rect x="10" y="38" width="32" height="16" rx="6"></rect></g></g>
+        <g class="fistUp" style="animation-delay:-.34s"><g transform="translate(786,172)"><rect x="0" y="0" width="52" height="40" rx="20"></rect><rect x="10" y="38" width="32" height="16" rx="6"></rect></g></g>
+        <g class="fistDown"><g transform="translate(410,256)"><rect x="0" y="0" width="52" height="40" rx="20"></rect><rect x="10" y="-16" width="32" height="16" rx="6"></rect></g></g>
+        <g class="fistDown" style="animation-delay:-.26s"><g transform="translate(668,256)"><rect x="0" y="0" width="52" height="40" rx="20"></rect><rect x="10" y="-16" width="32" height="16" rx="6"></rect></g></g>
+      </g>
+
+      <!-- かたくなった壁 -->
+      <g class="layer" data-phase="5">
+        <rect x="150" width="810" height="38" fill="var(--wall-hard)" style="y:calc(var(--lt) - 38px)"></rect>
+        <rect x="150" width="810" height="38" fill="var(--wall-hard)" style="y:calc(var(--lt) + var(--lh))"></rect>
+      </g>
+      <g class="layer" data-phase="5" stroke="#6E3A17" stroke-width="4" fill="none" stroke-linecap="round">
+        <polyline points="330,-30 342,-10 356,-30 368,-10" style="transform:translateY(var(--lt))"></polyline>
+        <polyline points="610,-30 622,-10 636,-30 648,-10" style="transform:translateY(var(--lt))"></polyline>
+      </g>
+
+      <!-- 言葉の説明 -->
+      <g class="layer" data-phase="6">
+        <rect x="170" y="330" width="620" height="62" rx="14" fill="var(--danger)"></rect>
+        <text x="480" y="372" text-anchor="middle" fill="#15202A" font-size="30"
+              font-family="Zen Maru Gothic, sans-serif" font-weight="700">血圧が 高い じょうたい ＝ 高血圧</text>
+      </g>
+      </g><!-- /mainScene -->
+
+      <!-- ============ ホースくらべ ============ -->
+      <g class="layer" data-phase="7">
+        <!-- 左：買ったばかりのホース -->
+        <text x="50" y="66" fill="#4FBDA9" font-size="25"
+              font-family="Zen Maru Gothic, sans-serif" font-weight="700">買ったばかりのホース</text>
+        <rect x="50" y="150" width="410" height="80" rx="40" fill="#163230" stroke="#4FBDA9" stroke-width="6"></rect>
+        <rect x="50" y="171" width="410" height="38" rx="19" fill="#4FBDA9" opacity=".22"></rect>
+        <text x="50" y="272" fill="var(--muted)" font-size="20"
+              font-family="Zen Maru Gothic, sans-serif" font-weight="700">やわらかい</text>
+        <text x="50" y="300" fill="var(--muted)" font-size="20"
+              font-family="Zen Maru Gothic, sans-serif" font-weight="700">ふくらんで、力をにがせる</text>
+
+        <!-- 右：何年も外にあったホース -->
+        <text x="500" y="66" fill="var(--wall-hard)" font-size="25"
+              font-family="Zen Maru Gothic, sans-serif" font-weight="700">何年も、外にあったホース</text>
+        <rect x="500" y="150" width="410" height="80" rx="40" fill="#231A14"
+              stroke="var(--wall-hard)" stroke-width="11"></rect>
+        <g stroke="var(--danger)" stroke-width="5" fill="none" stroke-linecap="round" class="blink">
+          <polyline points="576,156 590,176 606,156 620,176"></polyline>
+          <polyline points="722,156 736,176 752,156 766,176"></polyline>
+          <polyline points="648,206 662,226 678,206 692,226"></polyline>
+        </g>
+        <text x="500" y="272" fill="var(--muted)" font-size="20"
+              font-family="Zen Maru Gothic, sans-serif" font-weight="700">かたい</text>
+        <text x="500" y="300" fill="var(--muted)" font-size="20"
+              font-family="Zen Maru Gothic, sans-serif" font-weight="700">ひびが入っている</text>
+
+        <rect x="180" y="340" width="600" height="52" rx="13" fill="var(--danger)"></rect>
+        <text x="480" y="375" text-anchor="middle" fill="#15202A" font-size="26"
+              font-family="Zen Maru Gothic, sans-serif" font-weight="700">同じ年れいでも、血管の年れいはちがう</text>
+      </g>
+
+    </svg>
+
+    <p class="cap" id="cap"></p>
+    <div class="track"><div class="bar" id="bar"></div></div>
+
+    <div class="controls">
+      <button class="btn primary" id="play" type="button">一時停止</button>
+      <button class="btn" id="again" type="button">もう一度</button>
+    </div>
+  </div>
+
+  <p class="note">
+    <b>しくみの出典：</b>国立循環器病研究センター「高血圧」（食塩をとりすぎると体内のナトリウムと水分を調整するために血液量が増え、血圧が上がる）／
+    厚生労働省 e-ヘルスネット「動脈硬化」（細い動脈が硬くなる細動脈硬化は、主に高血圧が原因）／
+    国立循環器病研究センター「脳卒中」（高血圧は脳卒中の最大の原因）。図はAIが作成。
+  </p>
+</div>
+
+<script>
+  var NS = 'http://www.w3.org/2000/svg';
+
+  function el(name, attrs){
+    var n = document.createElementNS(NS, name);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    return n;
+  }
+
+  // ---- ふる塩 ----
+  function salt(parent, n, dur, yTop){
+    for (var i = 0; i < n; i++){
+      var x = 170 + Math.random() * 700;
+      var s = 9 + Math.random() * 9;
+      var g = el('g', {'class':'drop'});
+      g.style.animationDuration = (dur + Math.random() * .5) + 's';
+      g.style.animationDelay = '-' + (Math.random() * dur).toFixed(2) + 's';
+      g.appendChild(el('rect', {x:x, y:yTop, width:s, height:s, rx:2,
+        fill:'none', stroke:'var(--salt)', 'stroke-width':2.4}));
+      parent.appendChild(g);
+    }
+  }
+  salt(document.getElementById('saltLight'), 4, 2.6, 30);
+  salt(document.getElementById('saltHeavy'), 26, 1.0, 20);
+
+  // ---- ふる水 ----
+  (function(){
+    var p = document.getElementById('waterDrops');
+    for (var i = 0; i < 22; i++){
+      var x = 170 + Math.random() * 700;
+      var g = el('g', {'class':'drop'});
+      g.style.animationDuration = (0.9 + Math.random() * .4) + 's';
+      g.style.animationDelay = '-' + (Math.random() * 1.2).toFixed(2) + 's';
+      g.appendChild(el('path', {d:'M' + x + ' 26c6 9 10 13 10 18a10 10 0 0 1-20 0c0-5 4-9 10-18z',
+        fill:'var(--water)'}));
+      p.appendChild(g);
+    }
+  })();
+
+  // ---- 流れる血 ----
+  var cells = document.getElementById('cells');
+  function cell(cy, r, color, dur, delay, phase){
+    var c = el('circle', {cx:-30, cy:cy, r:r, fill:color});
+    c.setAttribute('class', 'cell' + (phase ? ' layer' : ''));
+    if (phase) c.setAttribute('data-phase', phase);
+    c.style.animationDuration = dur + 's';
+    c.style.animationDelay = '-' + delay + 's';
+    cells.appendChild(c);
+    return c;
+  }
+  // はじめから居る血（まん中あたり）
+  [200,236,212,248,224,204,240,216].forEach(function(y, i){
+    cell(y, 13, 'var(--blood)', 6.5, i * 0.8, 0);
+  });
+  // 水が入って増える（外側にも広がる）
+  [172,272,186,262,158,286,178,266].forEach(function(y, i){
+    cell(y, 13, 'var(--blood)', 5.2, i * 0.62 + .3, '3');
+  });
+  [190,254,166,278,206,244,160,290].forEach(function(y, i){
+    cell(y, 8, 'var(--water)', 5.2, i * 0.55 + .15, '2');
+  });
+
+  // ---- 台本 ----
+  var SCRIPT = [
+    { t:0,  p:0, w:'w1', main:"ふつうの血管",                        sub:"心ぞうが血を押し出している" },
+    { t:4,  p:1, w:'w1', main:"しょっぱいものを、どっさり食べた",    sub:"塩が、いつもよりずっと多く入ってくる" },
+    { t:9,  p:2, w:'w2', main:"のどがかわいて、水をがぶがぶ飲む",    sub:"のんだ水が、血の中に入る" },
+    { t:15, p:3, w:'w3', main:"血の量が、ふえた",                    sub:"管が、ぱんぱんにふくらむ" },
+    { t:21, p:4, w:'w3', main:"心ぞうが押し出すたび、かべを叩く",    sub:"ドクン、ドクン。前より強い力で" },
+    { t:27, p:5, w:'w3', main:"ボクシングで、なぐられ続けるのと同じ", sub:"毎日つづくと、かべは厚く・かたくなる" },
+    { t:33, p:6, w:'w3', main:"かたい血管は、もうのびない",          sub:"血管が、年をとっていく" },
+    { t:38, p:7, w:'w3', main:"同じ年れいでも、血管の年れいはちがう", sub:"買ったばかりのホースと、何年も外にあったホース" }
+  ];
+  var END = 46;
+
+  var frame = document.getElementById('frame');
+  var scene = document.getElementById('scene');
+  var capEl = document.getElementById('cap');
+  var barEl = document.getElementById('bar');
+  var playBtn = document.getElementById('play');
+  var layers = document.querySelectorAll('.layer');
+
+  var t = 0, running = true, last = null;
+
+  function apply(){
+    var cur = SCRIPT[0];
+    for (var i = 0; i < SCRIPT.length; i++) if (t >= SCRIPT[i].t) cur = SCRIPT[i];
+    scene.setAttribute('class', 'scene ' + cur.w + (cur.p >= 7 ? ' endgame' : ''));
+    capEl.innerHTML = '';
+    capEl.appendChild(document.createTextNode(cur.main));
+    var s = document.createElement('span'); s.className = 'sub'; s.textContent = cur.sub;
+    capEl.appendChild(s);
+    layers.forEach(function(l){
+      var from = parseInt(l.getAttribute('data-phase'), 10);
+      var until = parseInt(l.getAttribute('data-until'), 10);
+      var on = isNaN(from) ? cur.p === 0 : cur.p >= from;
+      if (!isNaN(until) && cur.p > until) on = false;
+      l.classList.toggle('on', on);
+    });
+    barEl.style.width = Math.min(100, t / END * 100) + '%';
+  }
+
+  function tick(now){
+    if (last === null) last = now;
+    var dt = (now - last) / 1000; last = now;
+    if (running){
+      t += dt;
+      if (t >= END){ t = END; running = false; frame.classList.add('paused'); playBtn.textContent = '再生'; }
+      apply();
+    }
+    requestAnimationFrame(tick);
+  }
+
+  playBtn.addEventListener('click', function(){
+    if (t >= END) t = 0;
+    running = !running;
+    frame.classList.toggle('paused', !running);
+    playBtn.textContent = running ? '一時停止' : '再生';
+  });
+  document.getElementById('again').addEventListener('click', function(){
+    t = 0; running = true; frame.classList.remove('paused'); playBtn.textContent = '一時停止'; apply();
+  });
+
+  apply();
+  requestAnimationFrame(tick);
+</script>
